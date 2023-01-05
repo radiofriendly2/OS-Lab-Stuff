@@ -1,0 +1,82 @@
+#include<stdio.h>
+#include<pthread.h>
+#include<stdlib.h>
+#include<semaphore.h>
+#include<string.h>
+#include<unistd.h>
+sem_t lock;
+int count=0;
+char d[8];
+struct chimpanzedetails
+{
+    char* name;
+    char* direction;
+};
+void* rope(void* arg)
+{
+    struct chimpanzedetails obj=*(struct chimpanzedetails*)arg;
+    for(int i=0;d[i];i++)
+    {
+    if(d[i]!=obj.direction[i])
+    {
+        if(count)
+        {
+        sem_wait(&lock);
+        break;
+        }
+        if(!count)
+        {
+            
+        }
+    }
+    }
+    if(!count)
+    {
+        int i=0;
+        for(;obj.direction[i];i++)
+        {
+            d[i]=obj.direction[i];
+        }
+        d[i]='\0';
+        sem_wait(&lock);
+    }
+    printf("%s is trying to move in %s direction\n",obj.name,obj.direction);
+    count++;
+    sleep(5);
+    count--;
+    printf("%s has now moved from the rope.\n",obj.name);
+    if(!count)
+    {
+        printf("Rope is now free\n");
+        sem_post(&lock);
+        int i=0;
+     
+    }
+}
+int main()
+{
+    pthread_t t[10];
+    sem_init(&lock,0,1);
+    struct chimpanzedetails* obj=malloc(sizeof(struct chimpanzedetails));
+    obj->name="Chimpanzi 1\0";
+    obj->direction="EastWard\0";
+    pthread_create(&t[0],NULL,rope,(void*)obj);
+    sleep(1);
+    obj->name="Chimpanzi 2\0";
+    obj->direction="EastWard\0";
+    pthread_create(&t[1],NULL,rope,(void*)obj);
+    sleep(1);
+     obj->name="Chimpanzi 3\0";
+    obj->direction="WestWard\0";
+    pthread_create(&t[2],NULL,rope,(void*)obj);
+    sleep(1);
+    obj->name="Chimpanzi 4\0";
+    obj->direction="EastWard\0";
+    pthread_create(&t[3],NULL,rope,(void*)obj);
+    sleep(1);
+    pthread_join(t[0],NULL);
+    pthread_join(t[1],NULL);
+    pthread_join(t[2],NULL);
+    pthread_join(t[3],NULL);
+      
+}
